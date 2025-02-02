@@ -14,24 +14,23 @@ router.get("/get-orders/:status",async (req,res,next)=>{
     let orders = await Order.find({completed : (req.params.status=="completed"?true:false)}).populate("counter dish user")
     let user_counters= counters.filter(counter=>counter.merchants.includes(req.user._id))
     user_counters = user_counters.map(data=>data._id.toString())
-    
     orders = orders.filter(order=>{
-        return order.counter &&  user_counters.includes(order.counter._id.toString())
+        return order.counter &&  user_counters.includes(order.counter._id.toString()) && order.dish
     })
+
     req.result = orders
     next()
 },pagination)
 
 router.get("/get-orders-by-user/:userId/:status",async (req,res,next)=>{
     let orders = await Order.find({user : req.params.userId,completed : (req.params.status=="completed"?true:false)}).populate("counter dish user")
-    orders = orders.filter(data=>data.counter)
+    orders = orders.filter(data=>data.counter && data.dish)
     req.result = orders
     next()
 },pagination)
 
 router.get("/get-all-orders",async (req,res,next)=>{
     let orders = await Order.find().populate("counter dish user")
-    // req.result = orders
     return res.status(200).json(orders)
 })
 
@@ -42,7 +41,6 @@ router.post("/add-order", async (req,res)=>{
         const counter = data.counterId
         const quantity = data.quantity
         const order =  await Order.create({counter,quantity,dish,user:req.user._id,date : new Date(Date.now())})
-        console.log(order)
     })
     return res.status(200).json("SuccessFull")
 })

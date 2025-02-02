@@ -17,7 +17,8 @@ function handleRolesAuthorization(...roles){
 
 //TODO : Change Password
 router.put('/change-pass/:userId',async (req,res)=>{
-    if(req.user._id !== req.params.userId){
+    console.log(req.params.userId,req.user._id)
+    if(req.user._id.toString() !== req.params.userId){
         return res.status(400).send("Not Authorized")
     }
     const user = await User.findById(req.params.userId);
@@ -141,7 +142,6 @@ router.post("/edit-counter/:counterId",handleRolesAuthorization("admin","merchan
     return res.status(200).json(counters)
 })
 
-//TODO : Add new Dish to COunter
 router.post("/add-dish/:counterId",handleRolesAuthorization("merchant"),async (req,res)=>{
     const counter = await Counter.findById(req.params.counterId)
     const {name,price, inStock} = req.body
@@ -154,7 +154,6 @@ router.post("/add-dish/:counterId",handleRolesAuthorization("merchant"),async (r
     return res.status(200).json(counter)
 })
 
-//TODO : Update Dish at COunter
 router.put("/update-dish/:dishId",handleRolesAuthorization("merchant"),async (req,res)=>{
     let dish = await Dish.findByIdAndUpdate(req.params.dishId,{
         $set:{...req.body}
@@ -164,15 +163,12 @@ router.put("/update-dish/:dishId",handleRolesAuthorization("merchant"),async (re
     return res.status(200).json(dish)
 })
 
-// Customers
 
-//TODO: TO get All Counters List
 router.get("/get-counters",handleRolesAuthorization("customer"),async (req,res)=>{
     const counter = await Counter.find().populate("dishes")
     return res.status(200).json(counter)
 })
 
-//TODO: Search for dish for all counters
 router.get("/search-dish/:dishId",handleRolesAuthorization("customer"),async (req,res)=>{
     const {name} = req.body
     const counters = await Counter.find().populate("dishes")
@@ -189,10 +185,9 @@ router.get("/search-dish/:dishId",handleRolesAuthorization("customer"),async (re
     return res.status(200).json(dishes)
 })
 
-//TODO : Remove DIsh
 router.delete("/remove-dish/:counterId/:dishId",handleRolesAuthorization("merchant"),async (req,res)=>{
     const counter = await Counter.findById(req.params.counterId).populate("dishes")
-    const dish = await Dish.findByIdAndDelete(req.params.dishId)
+    // const dish = await Dish.findByIdAndDelete(req.params.dishId)
     if(!counter.merchants.includes(req.user._id)){
         return res.status(400).send("Not Authorized")
     }
