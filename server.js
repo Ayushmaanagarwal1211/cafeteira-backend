@@ -12,7 +12,9 @@ const cors = require("cors")
 app.use(cors())
 app.use(express.json());
 
-
+app.get('/',(req,res)=>{
+    return res.status(200).send("Welcome")
+})
 
 
 app.use("/cart",checkUser, cartRouter)
